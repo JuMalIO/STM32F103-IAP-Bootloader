@@ -134,6 +134,8 @@ HAL_StatusTypeDef FLASH_ProgramFlashMemory(void)
 
 HAL_StatusTypeDef FLASH_TryUpdate(void)
 {
+	HAL_StatusTypeDef status = HAL_ERROR;
+	
 	/* Initialize Flash */
 	FLASH_If_Init();
 
@@ -143,24 +145,22 @@ HAL_StatusTypeDef FLASH_TryUpdate(void)
 		if (f_open(&FlashFile, FLASH_FILE, FA_READ) == FR_OK)
 		{
 			/* Erase necessary page to download image */
-			if (FLASH_If_Erase(APPLICATION_ADDRESS) != 0)
+			if (FLASH_If_Erase(APPLICATION_ADDRESS) == HAL_OK)
 			{
-				return HAL_ERROR;
+				status = FLASH_ProgramFlashMemory();
 			}
-
-			if (FLASH_ProgramFlashMemory() == HAL_OK)
-			{
-				//f_close(&FlashFile);
-				//f_unlink(FLASH_FILE);
-				f_mount(0, "", 0);
-				SD_disk_initialize(0);
-				
-				return HAL_OK;
-			}
+			
+			//f_close(&FlashFile);
 		}
+		
+		f_mount(0, "", 0);
+		SD_disk_initialize(0);
 	}
 	
-	return HAL_ERROR;
+	HAL_SPI_DeInit(&hspi1);
+	//HAL_DeInit();
+	
+	return status;
 }
 
 void FLASH_RunApplication(void)
