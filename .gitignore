@@ -1,5 +1,7 @@
 .vs/
 .mxproject
+*.dbgconf
+*.Bak
 
 # User-specific uVision files
 *.opt
