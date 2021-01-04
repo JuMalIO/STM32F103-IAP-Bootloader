@@ -2,6 +2,7 @@
 #define __app_H
 
 
+void APP_Init(void);
 void APP_Run(void);
 
 

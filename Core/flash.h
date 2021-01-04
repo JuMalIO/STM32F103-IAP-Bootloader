@@ -10,7 +10,7 @@ void FLASH_RunApplication(void);
 /* Define the address from where user application will be loaded.
    Note: this area is reserved for the IAP code                  */
 #define FLASH_PAGE_STEP         FLASH_PAGE_SIZE           /* Size of page : 2 Kbytes */
-#define APPLICATION_ADDRESS     (uint32_t)0x08003800      /* Start user code address */
+#define APPLICATION_ADDRESS     (uint32_t)0x08003000      /* Start user code address */
 
 /* Notable Flash addresses */
 #define FLASH_SIZE                 ((uint32_t)0x10000)  /* 64 KBytes */

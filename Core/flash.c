@@ -1,8 +1,6 @@
 #include "flash.h"
 #include "main.h"
 #include "ff.h"
-#include "fatfs.h"
-#include "fatfs_sd.h"
 
 #define FLASH_BUFFER_SIZE ((uint16_t)1 * 8192)
 #define FLASH_FILE "update.bin"
@@ -150,35 +148,40 @@ HAL_StatusTypeDef FLASH_TryUpdate(void)
 				status = FLASH_ProgramFlashMemory();
 			}
 			
-			//f_close(&FlashFile);
+			f_close(&FlashFile);
 		}
 		
-		f_mount(0, "", 0);
-		SD_disk_initialize(0);
+		f_mount(NULL, "", 0);
+		//SD_disk_initialize(0);
 	}
-	//FATFS_UnLinkDriver(USERPath);
-	HAL_SPI_DeInit(&hspi1);
-	HAL_DeInit();
 	
 	return status;
 }
 
 void FLASH_RunApplication(void)
 {
-  /* Test if user code is programmed starting from address "APPLICATION_ADDRESS" */
-  if (((*(__IO uint32_t*)APPLICATION_ADDRESS) & 0x2FFE0000 ) == 0x20000000)
-  {
-    /* Jump to user application */
-    JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
-    JumpToApplication = (pFunction) JumpAddress;
-    /* Initialize user application's Stack Pointer */
+  //FATFS_UnLinkDriver(USERPath);
+	HAL_SPI_DeInit(&hspi1);
+	HAL_RCC_DeInit();
+	HAL_DeInit();
+	
+	SysTick->CTRL = 0;
+	SysTick->LOAD = 0;
+	SysTick->VAL = 0;
+	
+  //__HAL_RCC_SYSCFG_CLK_ENABLE();
+  //__HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH();
+	
+	/* Jump to user application */
+	JumpAddress = *(__IO uint32_t*) (APPLICATION_ADDRESS + 4);
+	JumpToApplication = (pFunction) JumpAddress;
+	/* Initialize user application's Stack Pointer */
 #if   (defined ( __GNUC__ ))
-    /* Compensation as the Stack Pointer is placed at the very end of RAM */
-    __set_MSP((*(__IO uint32_t*) APPLICATION_ADDRESS) - 64);
+	/* Compensation as the Stack Pointer is placed at the very end of RAM */
+	__set_MSP((*(__IO uint32_t*) APPLICATION_ADDRESS) - 64);
 #else  /* (defined  (__GNUC__ )) */
-    __set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
+	__set_MSP(*(__IO uint32_t*) APPLICATION_ADDRESS);
 #endif /* (defined  (__GNUC__ )) */
 
-    JumpToApplication();
-  }
+	JumpToApplication();
 }
