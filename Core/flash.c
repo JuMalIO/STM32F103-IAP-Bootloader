@@ -135,15 +135,15 @@ HAL_StatusTypeDef FLASH_ProgramFlashMemory(void)
 HAL_StatusTypeDef FLASH_TryUpdate(void)
 {
 	HAL_StatusTypeDef status = HAL_ERROR;
-	
-	/* Initialize Flash */
-	FLASH_If_Init();
 
 	FATFS fatFs;
 	if (f_mount(&fatFs, "", 1) == FR_OK)
 	{
 		if (f_open(&FlashFile, FLASH_FILE, FA_READ) == FR_OK)
-		{
+		{	
+			/* Initialize Flash */
+			FLASH_If_Init();
+
 			/* Erase necessary page to download image */
 			if (FLASH_If_Erase(APPLICATION_ADDRESS) == HAL_OK)
 			{
@@ -156,9 +156,9 @@ HAL_StatusTypeDef FLASH_TryUpdate(void)
 		f_mount(0, "", 0);
 		SD_disk_initialize(0);
 	}
-	
+	//FATFS_UnLinkDriver(USERPath);
 	HAL_SPI_DeInit(&hspi1);
-	//HAL_DeInit();
+	HAL_DeInit();
 	
 	return status;
 }
