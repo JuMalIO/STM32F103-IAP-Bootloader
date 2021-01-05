@@ -1,6 +1,7 @@
 #include "flash.h"
 #include "main.h"
 #include "ff.h"
+#include "fatfs.h"
 
 #define FLASH_BUFFER_SIZE ((uint16_t)1 * 8192)
 #define FLASH_FILE "update.bin"
@@ -149,6 +150,7 @@ HAL_StatusTypeDef FLASH_TryUpdate(void)
 			}
 			
 			f_close(&FlashFile);
+			f_unlink(FLASH_FILE);
 		}
 		
 		f_mount(NULL, "", 0);
@@ -160,7 +162,7 @@ HAL_StatusTypeDef FLASH_TryUpdate(void)
 
 void FLASH_RunApplication(void)
 {
-  //FATFS_UnLinkDriver(USERPath);
+	FATFS_UnLinkDriver(USERPath);
 	HAL_SPI_DeInit(&hspi1);
 	HAL_RCC_DeInit();
 	HAL_DeInit();
